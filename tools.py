@@ -18,23 +18,13 @@ from schemas import CalculatorInput, RagRetrieveInput, WebSearchInput, Wikipedia
 # ---------------------------------------------------------------------------
 def web_search(args: WebSearchInput) -> str:
     try:
-        resp = requests.get(
-            "https://api.duckduckgo.com/",
-            params={"q": args.query, "format": "json", "no_html": 1},
-            timeout=10,
-        )
-        data = resp.json()
-        abstract = data.get("AbstractText")
-        if abstract:
-            return abstract
-        topics = data.get("RelatedTopics", [])
-        snippets = [t["Text"] for t in topics if isinstance(t, dict) and t.get("Text")]
-        if snippets:
-            return " | ".join(snippets[:3])
-        return f"No direct answer found for '{args.query}'."
+        from tavily import TavilyClient
+        tavily_client = TavilyClient()  # reads TAVILY_API_KEY from environment
+        results = tavily_client.search(query=args.query, max_results=3)
+        snippets = [r["content"] for r in results.get("results", [])]
+        return " | ".join(snippets) if snippets else f"No results found for '{args.query}'."
     except Exception as e:
         return f"web_search error: {e}"
-
 
 # ---------------------------------------------------------------------------
 # 2. Calculator — safe expression evaluation (no raw eval()).
@@ -75,8 +65,11 @@ def wikipedia_lookup(args: WikipediaInput) -> str:
     try:
         title = args.topic.strip().replace(" ", "_")
         resp = requests.get(
-            f"https://en.wikipedia.org/api/rest_v1/page/summary/{title}", timeout=10
+            f"https://en.wikipedia.org/api/rest_v1/page/summary/{title}",
+            headers={"User-Agent": "MultiToolResearchAgent/1.0 (student project)"},
+            timeout=10,
         )
+        
         if resp.status_code != 200:
             return f"No Wikipedia page found for '{args.topic}'."
         data = resp.json()

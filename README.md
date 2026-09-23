@@ -9,8 +9,11 @@
 ## Setup
 ```bash
 pip install -r requirements.txt
-export ANTHROPIC_API_KEY=your_key_here
+export GROQ_API_KEY=your_key_here
 ```
+Get a free key from [console.groq.com](https://console.groq.com). The
+default model is `llama-3.3-70b-versatile` (set in `agent.py`) — check
+Groq's docs for other models that support tool calling if you want to swap it.
 
 ## Run
 ```bash
@@ -20,11 +23,13 @@ This runs a built-in multi-hop test question. Edit the `if __name__` block
 or call `run("your question")` from another script.
 
 ## How the loop works
-1. `agent_node` sends the conversation + tool definitions to the model.
-2. If the model calls a tool, `tool_node` runs it and appends the result
-   as a `tool_result` message, then loops back to `agent_node`.
-3. If the model responds with plain text instead of a tool call, that's
-   treated as the final answer and the graph ends.
+1. `agent_node` sends the conversation + tool definitions to Groq.
+2. If the model returns one or more `tool_calls`, `tool_node` runs each
+   one and appends the result as a separate `{"role": "tool", ...}`
+   message (matched back via `tool_call_id`), then loops back to `agent_node`.
+3. If the model responds with plain text and no `tool_calls`, that's
+   treated as the final answer and the graph ends — this can happen on
+   the very first pass if the question doesn't need any tool at all.
 4. `MAX_ITERATIONS` (default 5) stops runaway loops — tune this per use case.
 
 ## Next steps to make this yours

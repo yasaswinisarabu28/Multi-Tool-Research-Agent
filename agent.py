@@ -15,15 +15,19 @@ import json
 import operator
 from typing import Annotated, TypedDict
 
+from dotenv import load_dotenv
 from groq import Groq
 from langgraph.graph import StateGraph, END
 
 from tools import TOOL_REGISTRY
 
+load_dotenv()  # reads GROQ_API_KEY from a .env file in the same folder
+
 MAX_ITERATIONS = 5
-# Pick a Groq-hosted model that supports tool calling.
-# Check https://console.groq.com/docs/models for the current list.
-MODEL = "llama-3.3-70b-versatile"
+# llama-3.3-70b-versatile was deprecated by Groq (shut down Aug 2026).
+# openai/gpt-oss-120b is Groq's current recommended replacement for
+# tool-calling workloads — good accuracy, large context, fast inference.
+MODEL = "openai/gpt-oss-120b"
 
 client = Groq()  # reads GROQ_API_KEY from the environment
 
