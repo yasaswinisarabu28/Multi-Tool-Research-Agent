@@ -9,7 +9,7 @@ import operator
 
 import requests
 
-from schemas import CalculatorInput, RagRetrieveInput, WebSearchInput, WikipediaInput
+from schemas import CalculatorInput,  WebSearchInput, WikipediaInput
 
 
 # ---------------------------------------------------------------------------
@@ -79,23 +79,6 @@ def wikipedia_lookup(args: WikipediaInput) -> str:
 
 
 # ---------------------------------------------------------------------------
-# 4. RAG retrieve — plug in your existing ChromaDB collection from the
-#    PDF Q&A bot. Stubbed here so this module runs standalone.
-# ---------------------------------------------------------------------------
-def rag_retrieve(args: RagRetrieveInput) -> str:
-    try:
-        import chromadb
-        from sentence_transformers import SentenceTransformer
-
-        client = chromadb.PersistentClient(path="./chroma_db")
-        collection = client.get_collection("documents")  # match your PDF bot's name
-        model = SentenceTransformer("all-MiniLM-L6-v2")
-        query_embedding = model.encode([args.query]).tolist()
-        results = collection.query(query_embeddings=query_embedding, n_results=args.top_k)
-        chunks = results.get("documents", [[]])[0]
-        return "\n---\n".join(chunks) if chunks else "No relevant chunks found."
-    except Exception as e:
-        return f"rag_retrieve error (is your ChromaDB set up at ./chroma_db?): {e}"
 
 
 # Registry the agent will use to map tool name -> (function, schema)
@@ -103,5 +86,4 @@ TOOL_REGISTRY = {
     "web_search": (web_search, WebSearchInput),
     "calculator": (calculator, CalculatorInput),
     "wikipedia_lookup": (wikipedia_lookup, WikipediaInput),
-    "rag_retrieve": (rag_retrieve, RagRetrieveInput),
 }
