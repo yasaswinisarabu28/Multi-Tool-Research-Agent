@@ -21,7 +21,3 @@ class CalculatorInput(BaseModel):
 class WikipediaInput(BaseModel):
     topic: str = Field(..., description="Topic or entity to look up on Wikipedia")
 
-
-class RagRetrieveInput(BaseModel):
-    query: str = Field(..., description="Query to search your local document store")
-    top_k: int = Field(3, description="Number of chunks to retrieve")

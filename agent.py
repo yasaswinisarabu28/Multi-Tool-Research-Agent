@@ -34,18 +34,8 @@ client = Groq()  # reads GROQ_API_KEY from the environment
 # OpenAI-style tool definitions: each one is wrapped in {"type": "function", "function": {...}}
 # and uses "parameters" instead of Anthropic's "input_schema".
 TOOL_DEFS = [
-    {
-        "type": "function",
-        "function": {
-            "name": "web_search",
-            "description": "Search the web for current information.",
-            "parameters": {
-                "type": "object",
-                "properties": {"query": {"type": "string"}},
-                "required": ["query"],
-            },
-        },
-    },
+    
+    
     {
         "type": "function",
         "function": {
